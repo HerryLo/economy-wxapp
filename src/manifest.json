@@ -1,0 +1,20 @@
+{
+  "name": "看懂经济词",
+  "appid": "wxafd7191b6cef5cec",
+  "description": "用人话解释日常经济术语，中英对照 + 小例子",
+  "versionName": "1.0.0",
+  "versionCode": "100",
+  "transformPx": false,
+  "mp-weixin": {
+    "appid": "wxafd7191b6cef5cec",
+    "setting": {
+      "urlCheck": false
+    },
+    "usingComponents": true
+  },
+  "h5": {},
+  "uniStatistics": {
+    "enable": false
+  },
+  "vueVersion": "3"
+}
