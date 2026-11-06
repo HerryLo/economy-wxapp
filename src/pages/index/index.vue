@@ -99,6 +99,17 @@ export default {
       this.applyFilter()
     },
   },
+  onShareAppMessage() {
+    return {
+      title: '看懂经济词 · 用人话解释经济术语',
+      path: '/pages/index/index',
+    }
+  },
+  onShareTimeline() {
+    return {
+      title: '看懂经济词 · 用人话解释经济术语',
+    }
+  },
   methods: {
     applyFilter() {
       this.visibleTerms = filterTerms(this.terms, this.keyword, this.category)
