@@ -37,6 +37,14 @@ describe('matchesKeyword', () => {
     expect(matchesKeyword(inflation, '购买力')).toBe(true)
   })
 
+  it('可以按说人话的解释匹配', () => {
+    expect(matchesKeyword(inflation, '钱的贬值')).toBe(true)
+  })
+
+  it('可以按小例子匹配', () => {
+    expect(matchesKeyword(inflation, '10 斤猪肉')).toBe(true)
+  })
+
   it('不相关关键字不匹配', () => {
     expect(matchesKeyword(inflation, '牛市')).toBe(false)
   })
@@ -66,6 +74,21 @@ describe('filterTerms', () => {
   it('分类配置与词条分类一致', () => {
     const used = new Set(terms.map((item) => item.category))
     used.forEach((category) => expect(categories).toContain(category))
+  })
+
+  it('财政与债务类词条统一归入政府报告', () => {
+    const ids = [
+      'fiscal-policy',
+      'fiscal-deficit',
+      'gov-bond',
+      'fiscal-deficit-ratio',
+      'special-treasury-bond',
+      'local-special-bond',
+    ]
+    ids.forEach((id) => {
+      const item = terms.find((term) => term.id === id)
+      expect(item.category).toBe('政府报告')
+    })
   })
 
   it('政府报告分类包含报告高频词', () => {

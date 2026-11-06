@@ -3,7 +3,7 @@ export function normalize(value) {
 }
 
 function searchableFields(term) {
-  return [term.term, term.en, term.summary, ...(term.aliases || [])]
+  return [term.term, term.en, term.summary, term.plain, term.example, ...(term.aliases || [])]
 }
 
 export function matchesKeyword(term, keyword) {
