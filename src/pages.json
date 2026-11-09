@@ -23,6 +23,14 @@
         "enableShareAppMessage": true,
         "enableShareTimeline": true
       }
+    },
+    {
+      "path": "pages/quiz/quiz",
+      "style": {
+        "navigationBarTitleText": "配对挑战",
+        "enableShareAppMessage": true,
+        "enableShareTimeline": true
+      }
     }
   ],
   "globalStyle": {
@@ -30,5 +38,25 @@
     "navigationBarTitleText": "看懂经济词",
     "navigationBarBackgroundColor": "#1F4E5F",
     "backgroundColor": "#F6F4EF"
+  },
+  "tabBar": {
+    "color": "#8A9A9F",
+    "selectedColor": "#1F4E5F",
+    "backgroundColor": "#FFFDF7",
+    "borderStyle": "white",
+    "list": [
+      {
+        "pagePath": "pages/index/index",
+        "text": "词条"
+      },
+      {
+        "pagePath": "pages/quiz/quiz",
+        "text": "挑战"
+      },
+      {
+        "pagePath": "pages/story/story",
+        "text": "故事"
+      }
+    ]
   }
 }

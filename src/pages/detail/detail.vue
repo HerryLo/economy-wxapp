@@ -112,7 +112,7 @@ export default {
       })
     },
     openStory() {
-      uni.navigateTo({ url: '/pages/story/story' })
+      uni.switchTab({ url: '/pages/story/story' })
     },
     goBack() {
       const pages = getCurrentPages()

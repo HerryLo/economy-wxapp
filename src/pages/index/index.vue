@@ -49,14 +49,6 @@
       </view>
     </view>
 
-    <view v-if="showStory && !searching" class="story-banner" hover-class="story-banner-hover" @tap="openStory">
-      <view class="story-banner-main">
-        <text class="story-banner-title">小岛故事</text>
-        <text class="story-banner-desc">跟着一座小岛，看懂经济怎么运转</text>
-      </view>
-      <text class="story-banner-arrow">→</text>
-    </view>
-
     <view class="list">
       <view class="list-head">
         <text class="list-title">{{ listTitle }}</text>
@@ -112,9 +104,6 @@ export default {
     },
     showSubjectRow() {
       return this.multiSubject
-    },
-    showStory() {
-      return this.subject === '全部' || this.subject === defaultSubject
     },
     currentSubject() {
       return this.subjects.find((item) => item.name === this.subject) || null
@@ -187,9 +176,6 @@ export default {
       uni.navigateTo({
         url: `/pages/detail/detail?id=${item.id}`,
       })
-    },
-    openStory() {
-      uni.navigateTo({ url: '/pages/story/story' })
     },
   },
 }
@@ -343,45 +329,6 @@ export default {
 
 .chip.active .chip-count {
   color: rgba(255, 255, 255, 0.72);
-}
-
-.story-banner {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin: 24rpx 32rpx 0;
-  padding: 28rpx 30rpx;
-  background: #f6ebdd;
-  border: 1rpx solid #efdcc5;
-  border-radius: 28rpx;
-}
-
-.story-banner-hover {
-  opacity: 0.86;
-}
-
-.story-banner-main {
-  flex: 1;
-}
-
-.story-banner-title {
-  display: block;
-  font-size: 30rpx;
-  font-weight: 700;
-  color: #9a5c27;
-}
-
-.story-banner-desc {
-  display: block;
-  margin-top: 8rpx;
-  font-size: 24rpx;
-  color: #7d5e3c;
-}
-
-.story-banner-arrow {
-  margin-left: 20rpx;
-  font-size: 32rpx;
-  color: #9a5c27;
 }
 
 .list {
