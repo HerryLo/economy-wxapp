@@ -21,8 +21,22 @@
       <text class="hero-count">已收录 {{ termsCount }} 个常用词条 · 持续更新</text>
     </view>
 
-    <scroll-view class="chips" scroll-x :show-scrollbar="false">
-      <view class="chip-row">
+    <view v-if="!searching" class="filter-bar">
+      <scroll-view v-if="showSubjectRow" class="subject-scroll" scroll-x :show-scrollbar="false">
+        <view class="subject-row">
+          <view
+            v-for="item in subjectList"
+            :key="item"
+            class="chip subject-chip"
+            :class="{ active: subject === item }"
+            @tap="subject = item"
+          >
+            <text class="chip-text">{{ item }}</text><text class="chip-count">{{ subjectCount(item) }}</text>
+          </view>
+        </view>
+      </scroll-view>
+
+      <view v-if="showCategoryRow" class="category-grid">
         <view
           v-for="item in categoryList"
           :key="item"
@@ -30,12 +44,12 @@
           :class="{ active: category === item }"
           @tap="category = item"
         >
-          {{ item }}
+          <text class="chip-text">{{ item }}</text><text class="chip-count">{{ categoryCount(item) }}</text>
         </view>
       </view>
-    </scroll-view>
+    </view>
 
-    <view class="story-banner" hover-class="story-banner-hover" @tap="openStory">
+    <view v-if="showStory && !searching" class="story-banner" hover-class="story-banner-hover" @tap="openStory">
       <view class="story-banner-main">
         <text class="story-banner-title">小岛故事</text>
         <text class="story-banner-desc">跟着一座小岛，看懂经济怎么运转</text>
@@ -45,7 +59,7 @@
 
     <view class="list">
       <view class="list-head">
-        <text class="list-title">{{ keyword ? '搜索结果' : '常用词条' }}</text>
+        <text class="list-title">{{ listTitle }}</text>
         <text class="list-count">{{ visibleCount }} 个</text>
       </view>
 
@@ -58,7 +72,7 @@
       >
         <view class="term-head">
           <text class="term-name">{{ item.term }}</text>
-          <text class="term-cat">{{ item.category }}</text>
+          <text class="term-cat">{{ termMeta(item) }}</text>
         </view>
         <text class="term-en">{{ item.en }}</text>
         <text class="term-summary">{{ item.summary }}</text>
@@ -76,27 +90,71 @@
 </template>
 
 <script>
-import { categories, terms } from '../../data/terms.js'
+import { defaultSubject, subjects, terms } from '../../data/terms.js'
 import { filterTerms } from '../../utils/search.js'
 
 export default {
   data() {
     return {
       keyword: '',
+      subject: '全部',
       category: '全部',
       terms,
+      subjects,
       termsCount: terms.length,
-      categoryList: ['全部', ...categories],
-      visibleTerms: terms,
-      visibleCount: terms.length,
+      subjectList: ['全部', ...subjects.map((item) => item.name)],
+      multiSubject: subjects.length > 1,
     }
   },
-  watch: {
-    keyword() {
-      this.applyFilter()
+  computed: {
+    searching() {
+      return this.keyword.trim().length > 0
     },
+    showSubjectRow() {
+      return this.multiSubject
+    },
+    showStory() {
+      return this.subject === '全部' || this.subject === defaultSubject
+    },
+    currentSubject() {
+      return this.subjects.find((item) => item.name === this.subject) || null
+    },
+    categoryList() {
+      if (!this.multiSubject) return ['全部', ...this.subjects[0].categories]
+      return this.currentSubject ? ['全部', ...this.currentSubject.categories] : []
+    },
+    showCategoryRow() {
+      return this.categoryList.length > 0
+    },
+    subjectBase() {
+      if (this.subject === '全部') return this.terms
+      return this.terms.filter((item) => (item.subject || defaultSubject) === this.subject)
+    },
+    effectiveCategory() {
+      if (this.multiSubject && this.subject === '全部') return '全部'
+      return this.category
+    },
+    visibleTerms() {
+      if (this.searching) return filterTerms(this.terms, this.keyword, '全部')
+      return filterTerms(this.subjectBase, '', this.effectiveCategory)
+    },
+    visibleCount() {
+      return this.visibleTerms.length
+    },
+    listTitle() {
+      if (this.searching) return '搜索结果'
+      if (this.multiSubject && this.subject !== '全部') return this.subject
+      if (this.category !== '全部') return this.category
+      return '常用词条'
+    },
+  },
+  watch: {
     category() {
-      this.applyFilter()
+      this.scrollToTop()
+    },
+    subject() {
+      this.category = '全部'
+      this.scrollToTop()
     },
   },
   onShareAppMessage() {
@@ -111,9 +169,19 @@ export default {
     }
   },
   methods: {
-    applyFilter() {
-      this.visibleTerms = filterTerms(this.terms, this.keyword, this.category)
-      this.visibleCount = this.visibleTerms.length
+    subjectCount(name) {
+      if (name === '全部') return this.terms.length
+      return this.terms.filter((item) => (item.subject || defaultSubject) === name).length
+    },
+    categoryCount(name) {
+      if (name === '全部') return this.subjectBase.length
+      return this.subjectBase.filter((item) => item.category === name).length
+    },
+    termMeta(item) {
+      return this.multiSubject ? `${item.subject || defaultSubject} · ${item.category}` : item.category
+    },
+    scrollToTop() {
+      uni.pageScrollTo({ scrollTop: 0, duration: 0 })
     },
     openTerm(item) {
       uni.navigateTo({
@@ -220,25 +288,44 @@ export default {
   color: rgba(255, 255, 255, 0.62);
 }
 
-.chips {
+.filter-bar {
+  position: sticky;
+  top: 0;
+  z-index: 20;
   margin-top: 24rpx;
+  padding: 20rpx 32rpx 4rpx;
+  background: #f6f4ef;
+  border-bottom: 1rpx solid rgba(231, 226, 216, 0.7);
+}
+
+.subject-scroll {
+  margin-bottom: 8rpx;
   white-space: nowrap;
 }
 
-.chip-row {
+.subject-row {
   display: flex;
-  padding: 0 32rpx;
+}
+
+.category-grid {
+  display: flex;
+  flex-wrap: wrap;
+  padding-top: 8rpx;
 }
 
 .chip {
   flex-shrink: 0;
-  margin-right: 16rpx;
-  padding: 12rpx 28rpx;
-  font-size: 26rpx;
+  margin: 0 12rpx 12rpx 0;
+  padding: 10rpx 18rpx;
+  font-size: 24rpx;
   color: #5b6b75;
   background: #ffffff;
   border: 1rpx solid #e7e2d8;
   border-radius: 999rpx;
+}
+
+.subject-chip {
+  margin-bottom: 12rpx;
 }
 
 .chip.active {
@@ -246,6 +333,16 @@ export default {
   color: #fffdf7;
   background: #1f4e5f;
   border-color: #1f4e5f;
+}
+
+.chip-count {
+  margin-left: 6rpx;
+  font-size: 18rpx;
+  color: #9aa7ad;
+}
+
+.chip.active .chip-count {
+  color: rgba(255, 255, 255, 0.72);
 }
 
 .story-banner {

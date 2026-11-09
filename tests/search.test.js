@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { categories, terms } from '../src/data/terms.js'
+import { defaultSubject, subjects, terms } from '../src/data/terms.js'
 import { filterTerms, matchesKeyword, normalize } from '../src/utils/search.js'
 
 describe('normalize', () => {
@@ -72,8 +72,18 @@ describe('filterTerms', () => {
   })
 
   it('分类配置与词条分类一致', () => {
+    const allCategories = subjects.flatMap((subject) => subject.categories)
+    expect(new Set(allCategories).size).toBe(allCategories.length)
     const used = new Set(terms.map((item) => item.category))
-    used.forEach((category) => expect(categories).toContain(category))
+    used.forEach((category) => expect(allCategories).toContain(category))
+  })
+
+  it('学科配置与词条归属一致', () => {
+    const names = subjects.map((subject) => subject.name)
+    expect(names).toContain(defaultSubject)
+    terms.forEach((item) => {
+      if (item.subject) expect(names).toContain(item.subject)
+    })
   })
 
   it('财政与债务类词条统一归入政府报告', () => {
