@@ -47,15 +47,21 @@
     "list": [
       {
         "pagePath": "pages/index/index",
-        "text": "词条"
+        "text": "词条",
+        "iconPath": "static/tabbar/index.png",
+        "selectedIconPath": "static/tabbar/index-active.png"
       },
       {
         "pagePath": "pages/quiz/quiz",
-        "text": "挑战"
+        "text": "挑战",
+        "iconPath": "static/tabbar/quiz.png",
+        "selectedIconPath": "static/tabbar/quiz-active.png"
       },
       {
         "pagePath": "pages/story/story",
-        "text": "故事"
+        "text": "故事",
+        "iconPath": "static/tabbar/story.png",
+        "selectedIconPath": "static/tabbar/story-active.png"
       }
     ]
   }
