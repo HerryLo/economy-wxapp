@@ -192,6 +192,7 @@ export default {
     }
   },
   methods: {
+    categoryEmoji,
     subjectCount(name) {
       if (name === '全部') return this.terms.length
       return this.terms.filter((item) => (item.subject || defaultSubject) === name).length

@@ -133,6 +133,7 @@ export default {
     }
   },
   methods: {
+    categoryEmoji,
     copyText(value) {
       if (!value) {
         return
