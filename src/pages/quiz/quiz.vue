@@ -259,6 +259,8 @@ export default {
         this.selectedLeftId = null
         this.selectedRightId = null
 
+        uni.vibrateShort({ type: 'medium' })
+
         if (this.matchedCount === this.pairs.length) this.finish('complete')
         return
       }
@@ -268,6 +270,8 @@ export default {
       this.wrongRightId = rightId
       this.locked = true
       this.timeLeft = Math.max(0, this.timeLeft - 3)
+
+      uni.vibrateShort({ type: 'heavy' })
 
       this.feedbackTimer = setTimeout(() => {
         this.wrongLeftId = null
@@ -516,6 +520,19 @@ export default {
   border-color: #cfe0cf;
   background: #eef5ee;
   opacity: 0.62;
+  animation: pop 0.35s ease;
+}
+
+@keyframes pop {
+  0% {
+    transform: scale(1);
+  }
+  40% {
+    transform: scale(1.08);
+  }
+  100% {
+    transform: scale(1);
+  }
 }
 
 .matched .term-text,

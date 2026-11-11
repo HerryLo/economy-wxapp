@@ -22,22 +22,48 @@
         <text v-if="term.aliases && term.aliases.length" class="alias-hint">点按别名可复制</text>
       </view>
 
-      <view class="section">
-        <text class="section-label">一句话记住</text>
-        <text class="section-text strong">{{ term.summary }}</text>
-      </view>
-
-      <view class="section">
-        <text class="section-label">说人话</text>
-        <text class="section-text">{{ term.plain }}</text>
-      </view>
-
-      <view class="section example">
+      <view class="section section-summary">
         <view class="section-head">
-          <text class="section-label">{{ isIslandExample ? '小岛故事' : '举个例子' }}</text>
+          <text class="section-label">💡 一句话记住</text>
+        </view>
+        <text class="section-text summary-text">{{ term.summary }}</text>
+      </view>
+
+      <view class="section section-plain">
+        <text class="section-label">📖 说人话</text>
+        <view class="plain-wrap">
+          <text class="section-text">{{ term.plain }}</text>
+        </view>
+      </view>
+
+      <view class="section section-example">
+        <view class="section-head">
+          <text class="section-label">{{ isIslandExample ? '🎯 小岛故事' : '🎯 举个例子' }}</text>
           <text v-if="isIslandExample" class="story-link" @tap="openStory">看完整故事 →</text>
         </view>
-        <text class="section-text">{{ exampleText }}</text>
+        <view class="example-wrap">
+          <text class="example-quote">"</text>
+          <text class="section-text example-text">{{ exampleText }}</text>
+        </view>
+      </view>
+
+      <view v-if="relatedTerms.length" class="related">
+        <text class="related-label">🔗 你可能还想看</text>
+        <view class="related-list">
+          <view
+            v-for="item in relatedTerms"
+            :key="item.id"
+            class="related-card"
+            hover-class="related-card-hover"
+            @tap="openTerm(item)"
+          >
+            <text class="related-emoji">{{ categoryEmoji(item.category) }}</text>
+            <view class="related-info">
+              <text class="related-term">{{ item.term }}</text>
+              <text class="related-summary">{{ item.summary }}</text>
+            </view>
+          </view>
+        </view>
       </view>
 
       <view class="disclaimer">以上为通俗整理，不构成任何投资建议。发现错误欢迎反馈。</view>
@@ -54,6 +80,7 @@
 <script>
 import { terms } from '../../data/terms.js'
 import { islandExamples } from '../../data/islandExamples.js'
+import { categoryEmoji, getRelatedTerms } from '../../utils/category.js'
 
 export default {
   data() {
@@ -73,6 +100,10 @@ export default {
         return ''
       }
       return islandExamples[this.term.id] || this.term.example
+    },
+    relatedTerms() {
+      if (!this.term) return []
+      return getRelatedTerms(terms, this.term.id, this.term.category, 3)
     },
   },
   onLoad(options) {
@@ -113,6 +144,9 @@ export default {
     },
     openStory() {
       uni.switchTab({ url: '/pages/story/story' })
+    },
+    openTerm(item) {
+      uni.redirectTo({ url: `/pages/detail/detail?id=${item.id}` })
     },
     goBack() {
       const pages = getCurrentPages()
@@ -213,10 +247,8 @@ export default {
 }
 
 .section {
-  margin-top: 24rpx;
+  margin-top: 28rpx;
   padding: 32rpx;
-  background: #fffdfa;
-  border: 1rpx solid #e7e2d8;
   border-radius: 28rpx;
 }
 
@@ -230,7 +262,7 @@ export default {
 .section-label {
   display: block;
   margin-bottom: 16rpx;
-  font-size: 24rpx;
+  font-size: 26rpx;
   font-weight: 600;
   letter-spacing: 2rpx;
   color: #c07a3e;
@@ -240,29 +272,149 @@ export default {
   margin-bottom: 0;
 }
 
+/* === 一句话记住：深色强调卡 === */
+.section-summary {
+  padding: 36rpx 32rpx;
+  background: linear-gradient(135deg, #1f4e5f 0%, #336d7a 100%);
+  border: none;
+  box-shadow: 0 10rpx 26rpx rgba(31, 78, 95, 0.18);
+}
+
+.section-summary .section-label {
+  color: #ffd68a;
+  font-size: 24rpx;
+}
+
+.summary-text {
+  font-size: 32rpx;
+  font-weight: 600;
+  line-height: 1.75;
+  color: #fffdf7;
+}
+
+/* === 说人话：左边竖条引导 === */
+.section-plain {
+  background: #fffdfa;
+  border: 1rpx solid #e7e2d8;
+}
+
+.plain-wrap {
+  padding-left: 20rpx;
+  border-left: 5rpx solid #1f4e5f;
+}
+
+.section-plain .section-text {
+  font-size: 30rpx;
+  line-height: 1.9;
+  color: #23303a;
+}
+
+/* === 举个例子：暖色引号装饰 === */
+.section-example {
+  background: #f6ebdd;
+  border: 1rpx solid #efdcc5;
+}
+
+.section-example .section-label {
+  color: #9a5c27;
+}
+
+.example-wrap {
+  position: relative;
+  padding: 16rpx 28rpx 16rpx 48rpx;
+  background: #fff7ec;
+  border-radius: 20rpx;
+}
+
+.example-quote {
+  position: absolute;
+  left: 14rpx;
+  top: -24rpx;
+  font-size: 72rpx;
+  font-weight: 700;
+  line-height: 1;
+  color: #c07a3e;
+  opacity: 0.6;
+}
+
+.example-text {
+  font-size: 28rpx;
+  line-height: 1.85;
+  color: #5b4026;
+}
+
 .story-link {
   font-size: 22rpx;
   color: #9a5c27;
 }
 
-.section-text {
+/* === 相关词条 === */
+.related {
+  margin-top: 32rpx;
+}
+
+.related-label {
   display: block;
-  font-size: 30rpx;
-  line-height: 1.8;
+  margin-bottom: 16rpx;
+  font-size: 26rpx;
+  font-weight: 600;
   color: #23303a;
 }
 
-.section-text.strong {
-  font-weight: 600;
+.related-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16rpx;
 }
 
-.section.example {
+.related-card {
+  display: flex;
+  align-items: flex-start;
+  padding: 24rpx;
+  background: #fffdfa;
+  border: 1rpx solid #e7e2d8;
+  border-radius: 24rpx;
+}
+
+.related-card-hover {
+  opacity: 0.86;
+}
+
+.related-emoji {
+  flex-shrink: 0;
+  width: 64rpx;
+  height: 64rpx;
+  margin-right: 18rpx;
+  font-size: 36rpx;
+  line-height: 64rpx;
+  text-align: center;
   background: #f6ebdd;
-  border-color: #efdcc5;
+  border-radius: 16rpx;
 }
 
-.section.example .section-label {
-  color: #9a5c27;
+.related-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.related-term {
+  display: block;
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #23303a;
+}
+
+.related-summary {
+  display: block;
+  margin-top: 6rpx;
+  font-size: 24rpx;
+  line-height: 1.5;
+  color: #5b6b75;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
 }
 
 .disclaimer {

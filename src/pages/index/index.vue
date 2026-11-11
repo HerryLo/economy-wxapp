@@ -19,6 +19,23 @@
       </view>
 
       <text class="hero-count">已收录 {{ termsCount }} 个常用词条 · 持续更新</text>
+
+      <view v-if="!searching" class="hot-wrap">
+        <text class="hot-label">🔥 热门搜索</text>
+        <view class="hot-list">
+          <view
+            v-for="tag in hotKeywords"
+            :key="tag.label"
+            class="hot-tag"
+            :class="{ 'hot-tag-top': tag.hot }"
+            @tap="keyword = tag.label"
+          >
+            <text class="hot-emoji">{{ tag.emoji }}</text>
+            <text class="hot-text">{{ tag.label }}</text>
+            <text v-if="tag.hot" class="hot-badge">🔥</text>
+          </view>
+        </view>
+      </view>
     </view>
 
     <view v-if="!searching" class="filter-bar">
@@ -63,7 +80,10 @@
         @tap="openTerm(item)"
       >
         <view class="term-head">
-          <text class="term-name">{{ item.term }}</text>
+          <view class="term-name-row">
+            <text class="term-emoji">{{ categoryEmoji(item.category) }}</text>
+            <text class="term-name">{{ item.term }}</text>
+          </view>
           <text class="term-cat">{{ termMeta(item) }}</text>
         </view>
         <text class="term-en">{{ item.en }}</text>
@@ -84,6 +104,7 @@
 <script>
 import { defaultSubject, subjects, terms } from '../../data/terms.js'
 import { filterTerms } from '../../utils/search.js'
+import { categoryEmoji } from '../../utils/category.js'
 
 export default {
   data() {
@@ -96,6 +117,19 @@ export default {
       termsCount: terms.length,
       subjectList: ['全部', ...subjects.map((item) => item.name)],
       multiSubject: subjects.length > 1,
+      hotKeywords: [
+        { label: 'GDP',    emoji: '📈', hot: true },
+        { label: 'CPI',    emoji: '🛒', hot: true },
+        { label: 'PPI',    emoji: '🏭', hot: true },
+        { label: '通胀',   emoji: '🔥', hot: false },
+        { label: '利率',   emoji: '💰', hot: false },
+        { label: 'LPR',    emoji: '🏦', hot: false },
+        { label: '美联储', emoji: '🇺🇸', hot: false },
+        { label: '加息',   emoji: '📊', hot: false },
+        { label: '汇率',   emoji: '💱', hot: false },
+        { label: 'A股',    emoji: '📉', hot: false },
+        { label: '房价',   emoji: '🏠', hot: false },
+      ],
     }
   },
   computed: {
@@ -274,6 +308,54 @@ export default {
   color: rgba(255, 255, 255, 0.62);
 }
 
+.hot-wrap {
+  margin-top: 22rpx;
+}
+
+.hot-label {
+  display: block;
+  font-size: 22rpx;
+  color: rgba(255, 255, 255, 0.55);
+  letter-spacing: 2rpx;
+}
+
+.hot-list {
+  display: flex;
+  flex-wrap: wrap;
+  margin-top: 12rpx;
+}
+
+.hot-tag {
+  display: inline-flex;
+  align-items: center;
+  margin: 0 14rpx 12rpx 0;
+  padding: 10rpx 22rpx;
+  font-size: 24rpx;
+  color: #fffdf7;
+  background: rgba(255, 255, 255, 0.18);
+  border-radius: 999rpx;
+}
+
+.hot-tag-top {
+  background: rgba(255, 200, 80, 0.28);
+  border: 1rpx solid rgba(255, 220, 120, 0.5);
+}
+
+.hot-emoji {
+  font-size: 28rpx;
+  margin-right: 8rpx;
+  line-height: 1;
+}
+
+.hot-text {
+  font-size: 24rpx;
+}
+
+.hot-badge {
+  font-size: 22rpx;
+  margin-left: 8rpx;
+}
+
 .filter-bar {
   position: sticky;
   top: 0;
@@ -370,6 +452,25 @@ export default {
   display: flex;
   align-items: center;
   justify-content: space-between;
+}
+
+.term-name-row {
+  display: flex;
+  align-items: center;
+  flex: 1;
+  min-width: 0;
+}
+
+.term-emoji {
+  flex-shrink: 0;
+  width: 48rpx;
+  height: 48rpx;
+  margin-right: 12rpx;
+  font-size: 28rpx;
+  line-height: 48rpx;
+  text-align: center;
+  background: #f6ebdd;
+  border-radius: 12rpx;
 }
 
 .term-name {
